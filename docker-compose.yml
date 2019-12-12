@@ -1,0 +1,68 @@
+version: '3.7'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  postgresql-master:
+    image: 'bitnami/postgresql:12'
+    ports:
+      - '5432'
+    volumes:
+      - 'postgresql_master_data:/bitnami/postgresql'
+    networks:
+      - app-tier
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=my_password
+      - POSTGRESQL_DATABASE=my_db
+      - ALLOW_EMPTY_PASSWORD=yes
+  postgresql-slave:
+    image: 'bitnami/postgresql:12'
+    ports:
+      - '5432'
+    networks:
+      - app-tier
+    depends_on:
+      - postgresql-master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql-master
+      - POSTGRESQL_PASSWORD=my_password
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - ALLOW_EMPTY_PASSWORD=yes
+  web:
+    build: .
+    command: bash -c "
+      ./wait-for-it.sh db:5432 --
+      python manage.py migrate --database=main
+      && python manage.py migrate --database=read_replica
+      && echo "Generating data..."
+      && python manage.py generate_data --books 100000 --readers 50000 --readers_with_books 10000
+      && python manage.py runserver 0.0.0.0:8000
+      "
+    env_file:
+      - .env
+    volumes:
+      - .:/code
+    networks:
+      - app-tier
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgresql-master
+    links:
+      - postgresql-master
+      - postgresql-slave
+
+
+
+volumes:
+  postgresql_master_data:
+    driver: local
