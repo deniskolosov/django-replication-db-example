@@ -74,4 +74,7 @@ For tests run:
 ```
 docker-compose run web ./manage.py test
 ```
+
+As it's just an example there is some simplification, for example, all passwords should not be in CVS,
+there should be Gunicorn and Nginx (for example) installed, but for easier running I ommitted those steps.
  
