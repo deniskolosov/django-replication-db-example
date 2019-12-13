@@ -32,4 +32,8 @@ for example,
 http://127.0.0.1:8000/api/readers/51337/
 ```
 
+For tests run:
+```
+docker-compose run web ./manage.py test
+```
  
