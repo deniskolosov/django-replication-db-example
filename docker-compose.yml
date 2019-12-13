@@ -43,12 +43,10 @@ services:
       ./wait-for-it.sh db:5432 --
       python manage.py migrate --database=main
       && python manage.py migrate --database=read_replica
-      && echo "Generating data..."
+      && echo "Generating..."
       && python manage.py generate_data --books 100000 --readers 50000 --readers_with_books 10000
       && python manage.py runserver 0.0.0.0:8000
       "
-    env_file:
-      - .env
     volumes:
       - .:/code
     networks:
