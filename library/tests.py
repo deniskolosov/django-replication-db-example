@@ -4,6 +4,7 @@ from django.core.management import call_command
 from django.db.models import Q
 from django.test import TestCase
 
+from library.factories import ReaderFactory
 from library.models import Book, Reader
 
 
@@ -26,3 +27,11 @@ class GenerateDataCommandTestCase(TestCase):
         self.assertIn('{} books was created'.format(3), out.getvalue())
         self.assertIn('{} readers was created'.format(3), out.getvalue())
         self.assertIn('{} readers with books was created'.format(3), out.getvalue())
+
+    def test_exit_on_not_empty_db(self):
+        out = StringIO()
+        ReaderFactory()
+        with self.assertRaises(SystemExit):
+            call_command('generate_data', books=3, readers=3, readers_with_books=3, stdout=out)
+        self.assertIn('Data exists, not generating', out.getvalue())
+

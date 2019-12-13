@@ -1,9 +1,9 @@
-import random
+import sys
 
 from django.core.management import BaseCommand, CommandError
 
 from library.factories import BookFactory, ReaderFactory, BookReaderFactory, ReaderWithBooksFactory
-from library.models import Reader
+from library.models import Reader, BooksReaders, Book
 
 
 class Command(BaseCommand):
@@ -30,6 +30,12 @@ class Command(BaseCommand):
         """
         Generate books, readers and book-reader links.
         """
+        # Don't generate if it's already there.
+        if Book.objects.all() or Reader.objects.all() or BooksReaders.objects.all():
+            self.stdout.write(
+                'Data exists, not generating')
+            sys.exit()
+
         if options['books']:
             try:
                 BookFactory.create_batch(options['books'])

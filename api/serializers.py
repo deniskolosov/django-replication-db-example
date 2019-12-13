@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from library.models import Book, Reader, BooksReaders
+from library.models import Book, Reader
 
 
 class BookSerializer(serializers.ModelSerializer):

@@ -1,9 +1,8 @@
 from django.test import TestCase, Client
 
-# Create your tests here.
 from rest_framework.reverse import reverse
 
-from library.factories import ReaderWithBooksFactory, ReaderFactory, BookFactory, BookReaderFactory
+from library.factories import ReaderFactory, BookFactory, BookReaderFactory
 
 
 class GetReaderTestCase(TestCase):
